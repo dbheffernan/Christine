@@ -18,12 +18,21 @@ from sklearn import preprocessing
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer
 
+returns_dict = {
+        'party': re.compile(r'(?P<party>.*); ; ; ; ;'),
+        'office': re.compile(r'(?P<office>.*); ;'),
+        'candidate': re.compile(r'(?P<candidate>.*);'),
+        'state' : re.compile(r'State Office - (?P<state>.*)'),
+        'nc': re.compile(r'County Office - New Castle County - (?P<nc>.*)'),
+        'kc': re.compile(r'County Office - Kent County - (?P<kc>.*)'),
+        'sc': re.compile(r'County Office - Sussex County - (?P<sc>.*)')
+        }
+
 def _parse_line(line):
     for key, rx in returns_dict.items():
         match = rx.search(line)
         if match:
             return key, match
-    # if there are no matches
     return None, None
 def parser(filepath):
     data = []
@@ -43,14 +52,14 @@ def parser(filepath):
                     office = line.strip().split(';')
                     office = office[0].strip()
                     print(office)
-                    if ("county" in office.lower() or "sheriff" in office.lower() or "deeds" in office.lower() or "wills" in office.lower() or "peace" in office.lower()):
-                        x = input('County?')
-                        office = office + ' ('+ x + ')'
-                    if ("levy") in office.lower():
-                        office = office + ' (K)'
+                    '''if ("county" in office.lower() or "sheriff" in office.lower() or "deeds" in office.lower() or "wills" in office.lower() or "peace" in office.lower()):
+                     ''   x = input('County?')
+                     ''   office = office + ' ('+ x + ')'
+                    ''if ("levy") in office.lower():
+                        office = office + ' (K)' 
                     if ("UNITED STATES SENATOR") in office:
                         x = input('Senate Class?')
-                        office = office + ' (CLASS ' + str(x) + ')'
+                        office = office + ' (CLASS ' + str(x) + ')' '''
                 else:
                      candidate = line.strip().split(';')
                      name = candidate[0].strip()
@@ -74,7 +83,6 @@ def parser(filepath):
                              'Incumbent': 0
                              }
                      data.append(row)
-                #print(row)
                 line = file_object.readline()
             
     data = pd.DataFrame.from_dict(data)
