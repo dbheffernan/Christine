@@ -4,23 +4,27 @@ Created on Thu Oct 25 19:14:12 2018
 
 @author: Dillon
 """
-import ingestion 
 import utilities
 import dicts
 import pandas as pd
 
 def results_processing(results,election_type,year):
     results = results.drop(['Absentee','Machine','Total'],axis=1)
+    results.Party = results.Party.astype('category')
+    results.Percent = results.Percent.astype('float')
+    results['Percent'] = results.groupby(['Name', 'Office'])['Percent'].transform('sum')
+    results = results.drop_duplicates(subset=['Name'])
     results = utilities.won_checker(results,election_type)
     results = utilities.inc_checker(results,year,masterlist)
-    periods = dicts.period_dict[str(year)+dicts.type_dict[election_type]]
+    periods = str(year)+dicts.type_dict[election_type]
     results = utilities.text_match(results,canlist,state_contribs,periods)
-    results = filler(results, periods, ingestion.state_contribs,ingestion.state_expend)
-
+    results = filler(results, periods, state_contribs,state_expend)
+    return results
     
 def filler(results_data, periods, contrib_list,expend_list):
     df = pd.DataFrame()
     for index, row in results_data.iterrows():
+        print(row.Name)
         contrib = get_contrib(row.CF_ID, periods, contrib_list)
         expend = get_expend(row.CF_ID,periods, expend_list)
         details = pd.merge(contrib,expend, on='CF_ID')
@@ -29,11 +33,11 @@ def filler(results_data, periods, contrib_list,expend_list):
     return merged
 
 def get_contrib(CF_ID,periods,contrib_list):
-    df= contrib_list[(contrib_list.CF_ID == CF_ID) and (contrib_list.Filing_Period.isin(periods))]
+    df= contrib_list[contrib_list.CF_ID == CF_ID]
+    df = df[df.Filing_Period.isin(dicts.period_dict[periods])]
     total = sum(df['Contribution_Amount'])
     add = pd.DataFrame([[0]*9],columns=set(list(dicts.contrib_dict.values())))
     for index, row in df.iterrows():
-        print(row.Contributor_Type)
         ct1 = row.Contributor_Type
         if(ct1 == 'Individual' and row['Contributor_State'] == 'DE'):
             ct1 = 'Ind_DE'
@@ -45,7 +49,8 @@ def get_contrib(CF_ID,periods,contrib_list):
     return add
 
 def get_expend(CF_ID,periods,expend_list):
-    df =expend_list[(expend_list.CF_ID == CF_ID) and (expend_list.Filing_Period.isin(periods))]
+    df= expend_list[expend_list.CF_ID == CF_ID]
+    df = df[df.Filing_Period.isin(dicts.period_dict[periods])]
     total = sum(df['Amount'])
     add = pd.DataFrame([[0]*10],columns=dicts.mod_purp_dict)
     for cat in dicts.mod_purp_dict:

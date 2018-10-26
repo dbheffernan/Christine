@@ -15,7 +15,7 @@ def canlister (df,contribs):
     for office in dicts.offices:
         x = df[df.off_trim == office]
         xcanlist = xcanlist.append(x)
-        df = pd.DataFrame()
+    df = pd.DataFrame()
     for index, row in xcanlist.iterrows():
     #print(row.CF_ID)
         limited_contribs = contribs[contribs.Filing_Period.isin(dicts.period_dict['2008all'])]
@@ -31,7 +31,10 @@ def canlister (df,contribs):
         df=df.append(row)
     return df
 
+
+
 def text_match(results,canlist,contributions,periods):
+    print(periods)
     limited_contribs = contributions[contributions.Filing_Period.isin(dicts.period_dict[periods])]
     df1 = pd.DataFrame()
     for index, candidate in results.iterrows():
@@ -50,7 +53,11 @@ def text_match(results,canlist,contributions,periods):
             df=df.reset_index(drop=True)
             head = df.loc[0,]    
             if(head.Match_Score < 50):
-                print("Low match score, something might be up\n",  head.Committee_Name, candidate.Name, '\nHow about:\n')
+                print("Low match score, something might be up\n Committee name:", head.Committee_Name,  
+                      "\n Candidate Name: ",candidate.Name, 
+                      "\n Candidate Party: ",candidate.Party, 
+                      "\n Candidate Percentage: ",candidate.Percent, 
+                      '\n How about:\n')
                 guesses = process.extract(candidate.Name, canlist.Committee_Name, scorer =fuzz.token_set_ratio, limit =10)
                 guesses = pd.DataFrame(guesses,columns = ['Committee_Name','Match_Score','number'])
                 guesses['Total_Raised'] = canlist.loc[guesses.number][periods].tolist()
@@ -69,6 +76,11 @@ def text_match(results,canlist,contributions,periods):
                     candidate['Committee_Name'] =  head.Committee_Name
                     candidate['total'] = head.Total_Raised
                     candidate['match'] = head.Match_Score
+            else:
+                candidate['CF_ID'] = head.CF_ID
+                candidate['Committee_Name'] =  head.Committee_Name
+                candidate['total'] = head.Total_Raised
+                candidate['match'] = head.Match_Score
             df1 = df1.append(candidate)
         except:
             print('match failed', candidate.Name)

@@ -90,7 +90,7 @@ if(x=='y'):
     state_expend.Payee_Type = state_expend.Payee_Type.map(dicts.contrib_dict)
 
 x = input('input results data? (y/n)')
-if(x=='y'):  
+if(x=='y'): 
     results08p = doe_parse.parser(r"C:\Users\Dillon\Documents\chris_data\08resultsp.txt")
     results08g = doe_parse.parser(r"C:\Users\Dillon\Documents\chris_data\08resultsg.txt")
     results10p = doe_parse.parser(r"C:\Users\Dillon\Documents\chris_data\10resultsp.txt")
@@ -102,3 +102,11 @@ if(x=='y'):
     results16p = doe_parse.parser(r"C:\Users\Dillon\Documents\chris_data\16resultsp.txt")
     results16g = doe_parse.parser(r"C:\Users\Dillon\Documents\chris_data\16resultsg.txt")
     results_pack = [results08p, results08g,results10p, results10g,results12p, results12g,results14p, results14g,results16p, results16g,]
+    for results in results_pack:
+        results = results.drop(['Absentee','Machine','Total'],axis=1)
+        
+        
+        
+        
+        
+        

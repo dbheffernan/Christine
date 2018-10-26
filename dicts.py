@@ -20,6 +20,17 @@ primary_dict = {2007:pd.to_datetime('8/28/08'),
                 2015:pd.to_datetime('9/01/16'),
                 2016:pd.to_datetime('9/01/16')}
 
+mod_purp_dict = [
+ 'Candidate Expenses',
+ 'Contributions',
+ 'Field Expenses',
+ 'Fund Raiser',
+ 'Mail',
+ 'Media',
+ 'Printing and Campaign Materials',
+ 'Rent and Other Office expenses',
+ 'Salaries and Other compensation',
+ 'smol']
 
 contrib_dict = {
         'Self (Candidate)': 'Self',
